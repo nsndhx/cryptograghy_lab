@@ -1,6 +1,7 @@
 import pymysql
 import re
 import hashlib
+from hashToCurve import hashToCurve,powMod,ep
 from random import randint
 
 class DataBaseInfo:
@@ -62,11 +63,11 @@ class DataBaseInfo:
     def amount(self,table_name):
         db = self._connect()
         cursor = db.cursor()
-        sql="select * from "+ table_name
-        result=cursor.execute(sql)
+        sql="select count(server_index) from "+ table_name
+        cursor.execute(sql)
         db.commit()
-        result=result+1
-        print("server_index:\t",result)
+        result=cursor.fetchall()[0][0]+1
+        print("result:\t",result)
         return result
 
 
@@ -108,10 +109,10 @@ class DataBaseInfo:
 
         try:
             #如果存在table_name表，则删除
-            #cur.execute('DROP TABLE IF EXISTS ' + tablename )
+            cur.execute('DROP TABLE IF EXISTS ' + tablename )
             sqlQuery = '''CREATE TABLE ''' + tablename + '''(
                     username VARCHAR(100),
-                    server_index INT(100)
+                    server_index VARCHAR(100)
             )'''
             cur.execute(sqlQuery)
             print("数据表创建完成！")
@@ -150,22 +151,21 @@ class DataBaseInfo:
         m.update(u.encode('utf-8'))
         m.digest()
         u=m.hexdigest()
-        print('u:\t',u)
+        #print('u:\t',u)
         h=int(u,16)
-        print("H^b:\t",h)
-        #TODO:将u进行盲化处理
-        #H=h**b
+        H=hashToCurve(h)
+        print("H:\t",H)
         #取u前两个字节作为表名存储盲化后的用户名H
         #table_name=u.encode('utf-8')
-        
-        table_name=u[:4]
-        #table_name=table_name.decode('utf-8', errors='ignore')
+        table_name=u[:2]
         table_name="bucket_"+table_name
-        print(table_name)
+        #TODO:将u进行盲化处理
+        u=powMod(H,b,ep.p)
+        #table_name=table_name.decode('utf-8', errors='ignore')
         print("table_name:\t",table_name)
+        print("username:\t",u)
         #往表中插入数据：需判断表是否存在
         if self.table_exists(table_name) == 0:
-            print(table_name+' not exists')
             self._create_table(table_name)
         self._add_table_record(table_name,u)
 
@@ -193,11 +193,11 @@ def main():
     dbinfo = DataBaseInfo()
     # delete_database( self )
     # dbinfo.create_database(  )
-    dbinfo.create_table( 'info' )
-    for i in range(1000):
-        user_name=i*100
-        user_password=user_name
-        dbinfo.add_table_record( 'info', user_name, user_password )
+    # dbinfo.create_table( 'info' )
+    # for i in range(10000):
+    #     user_name=i*100
+    #     user_password=user_name
+    #     dbinfo.add_table_record( 'info', user_name, user_password )
     dbinfo.find()
 
 if __name__ == "__main__":

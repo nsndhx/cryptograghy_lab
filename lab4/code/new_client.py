@@ -1,6 +1,7 @@
 import json
 import requests
 import hashlib
+from hashToCurve import hashToCurve,powMod,ep
 import datetime
 
 def request(tablename,H):
@@ -21,27 +22,28 @@ p=input()
 start = datetime.datetime.now()
 
 ##client
-a=2
+b=10
 
 u=u+p
 m=hashlib.sha224()
 m.update(u.encode('utf-8'))
 m.digest()
 u=m.hexdigest()
-print('u:\t',u)
+#print('u:\t',u)
 h=int(u,16)
-print("H^a:\t",h)
-#TODO:将u进行盲化处理
-#H=h**b
+H=hashToCurve(h)
+print("H:\t",H)
 #取u前两个字节作为表名存储盲化后的用户名H
 #table_name=u.encode('utf-8')
-
-table_name=u[:4]
+table_name=u[:2]
 table_name="bucket_"+table_name
+#TODO:将u进行盲化处理
+u=powMod(H,b,ep.p)
 #table_name=table_name.decode('utf-8', errors='ignore')
 print("table_name:\t",table_name)
+print("username:\t",u)
 
-result=request(table_name,h)
+result=request(table_name,u)
 
 end = datetime.datetime.now()
 print("using time:\t",end-start)

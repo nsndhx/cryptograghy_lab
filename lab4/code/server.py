@@ -48,6 +48,7 @@ def requests():
     get_data = json.loads(request.get_data(as_text=True))
     tablename=get_data['table_name']
     H=get_data['H']
+    print(H)
 
     if table_exists(tablename) == 0:
         print(tablename+' not exists')
@@ -61,17 +62,15 @@ def requests():
         try:
             cur.execute(sqlQuery)
             results = cur.fetchall()
-            #data=[results[0]]
-            #print(data)
             for data in results:
-                if H == data[0]:
+                if int(H) == int(data[0]):
                     db.close()
                     end = datetime.datetime.now()
                     print("using time:\t",end-start)
-                    return jsonify(result="none")
+                    return jsonify(result="match")
             end = datetime.datetime.now()
             print("using time:\t",end-start)
-            return jsonify(result="match") 
+            return jsonify(result="none") 
         except pymysql.Error as e:
             print("数据查询失败：" + str(e))
     
