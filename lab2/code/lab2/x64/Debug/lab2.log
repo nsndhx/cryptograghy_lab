@@ -1,0 +1,2 @@
+﻿  tempdes.c
+D:\wtx\cryptograghy_lab\lab2\tempdes.c(1,10): fatal error C1083: 无法打开包括文件: “openssl/des.h”: No such file or directory

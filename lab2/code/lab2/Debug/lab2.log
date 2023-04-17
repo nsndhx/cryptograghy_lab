@@ -1,0 +1,3 @@
+﻿  tempdes.cpp
+D:\wtx\cryptograghy_lab\lab2\code\lab2\tempdes.cpp(48,20): warning C4244: “初始化”: 从“std::streamoff”转换到“int”，可能丢失数据
+  lab2.vcxproj -> D:\wtx\cryptograghy_lab\lab2\code\lab2\Debug\lab2.exe
